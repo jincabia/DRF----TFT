@@ -68,12 +68,23 @@ class GameInfoView(APIView):
 
     def get(self,request,gameID):
 
-        # Match is the entire game metadata + info
-        match = fetch_match_info(gameID)
+        # Find the match from my games model
+        match = Game.objects.get(game_id = gameID)
+
+
+            
+        # match = fetch_match_info(gameID)
         
         # tactician_info[0] = name of tactician
         # tactician_info[1] = img path
-        tactician_info = getTacticianPath(match)
+        
+        tactician_info = getTacticianPath(match.game_info)
+
+
+        #  if tactician:
+        #     tacticianplacements = TacticianPlacements.objects.filter(tactician=tactician)
+        #     serializer = TacticianPlacementSerializer(tacticianplacements, many=True)
+        #     return Response(serializer.data)
         
 
 
@@ -100,6 +111,7 @@ class TacticianPlacementView(APIView):
     def get(self,request,item_id):
 
         tactician = Tactician.objects.get(itemID=item_id)
+        print(tactician)
 
         if tactician:
             tacticianplacements = TacticianPlacements.objects.filter(tactician=tactician)
@@ -119,26 +131,49 @@ class MostUsedTactician(APIView):
 
     def get(self,request):
         tacticianplacements = TacticianPlacements.objects.values('tactician').annotate(game_count = Count('game'))
-        tacticianItemID = FindTacticianUsingID(tacticianplacements.latest('game_count')['tactician'])
+
+
         if tacticianplacements:
-            # return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianplacements.latest('game_count')['tactician']})
-            return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianItemID})
+
+            tacticianItemID = FindTacticianUsingID(tacticianplacements.latest('game_count')['tactician'])
+
+            itemID = int(tacticianItemID['itemID'])
+
+            # finds the name of the tactician and the path of it
+            results = searchInsideJSON(itemID)
+            name,path = results['name'], results['path']
+
+            # find the games and put the placements into a list
+            tactician_games = getTacticianGames(itemID)
+            serializer = TacticianPlacementSerializer(tactician_games, many=True)
+
+            placement_average = 0.0
+
+            for game in serializer.data:
+                # print(game['placement'])
+                placement_average += float( game['placement'])
+            
+            placement_average /= len(game)
+            
+
+
+            
+            
+            
+
+            return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianItemID,'name':name, 'path':path,'placements':placement_average})
         
 
+        return Response('Tactician Not found')
 
+class GameIdView(APIView):
 
-class FindTactician(APIView):
     """
-    Using itemID to find the path to the tactician img
+    Get a list of all the gameIds stored
     """
 
-    def get(self,request,item_id):
+    def get(self,request):
+        game_ids = Game.objects.all()
+        serializer = GameIDSerializer(game_ids, many=True)
 
-
-
-
-
-        
-
-        return Response()
-
+        return Response(serializer.data)

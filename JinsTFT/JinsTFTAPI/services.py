@@ -172,7 +172,7 @@ def FindTacticianUsingID(id):
     WHEN STORED INSIDE DATABASE
     """
 
-    tactician = Tactician.objects.get(id=id)
+    tactician = Tactician.objects.get(id=id)    
     serializer = TacticianSerializer(tactician)
     # print(tactician)
     if tactician:   
@@ -234,16 +234,56 @@ def getTacticianPath(match):
 
         # Change the path for the json file here
         # JinsTFT\JinsTFTAPI
-        with open('JinsTFTAPI\companions.json', 'r', encoding="utf8") as file:
+        # with open('JinsTFTAPI\companions.json', 'r', encoding="utf8") as file:
+        #     companions_json = json.load(file)
+        
+        # len_companions_json = len(companions_json)
+
+        # index_tactician_used = bsTactician(companions_json,0,len_companions_json,item_ID)
+
+        # tactician_used = companions_json[index_tactician_used]['name']
+
+        # img_path = re.split('Companions/', companions_json[index_tactician_used]['loadoutsIcon'])[-1]
+
+
+        # return [tactician_used,img_path]
+
+        return searchInsideJSON(item_ID)
+
+def searchInsideJSON(target_tact_id):
+
+    """
+    Search inside the JSON file and return the name of tactician and the img path
+    """
+
+    with open('JinsTFTAPI\companions.json', 'r', encoding="utf8") as file:
             companions_json = json.load(file)
         
-        len_companions_json = len(companions_json)
+    len_companions_json = len(companions_json)
 
-        index_tactician_used = bsTactician(companions_json,0,len_companions_json,item_ID)
+    index_tactician_used = bsTactician(companions_json,0,len_companions_json,target_tact_id)
 
-        tactician_used = companions_json[index_tactician_used]['name']
+    name = companions_json[index_tactician_used]['name']
 
-        img_path = re.split('Companions/', companions_json[index_tactician_used]['loadoutsIcon'])[-1]
+    img_path = re.split('Companions/', companions_json[index_tactician_used]['loadoutsIcon'])[-1]
 
 
-        return [tactician_used,img_path]
+    return {'name':name, 'path':img_path}
+
+def getTacticianGames(itemID):
+
+    """
+    Get the games from the tactician using its id
+    """
+
+    tactician = Tactician.objects.get(itemID=itemID)
+    print(tactician)
+
+    if tactician:
+            tacticianplacements = TacticianPlacements.objects.filter(tactician=tactician)
+            return(tacticianplacements)
+    
+    return('Tactician not found')
+            
+
+

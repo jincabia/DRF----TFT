@@ -1,95 +1,67 @@
 'use client'
 import { useState, useEffect } from "react"
-
-export async function getMatches()
-{
-
-  try {
-    const res = await fetch('http://localhost:8000/api/games/')
-    const data = await res.json();
-    console.log(data)
-    return(data)
-  } catch (error) {
-    console.error(error)
-    return [] 
-  }
-}
-
-export async function getMatchInfo(game_id)
-{
-  try {
-    const res = await fetch(`http://localhost:8000/api/recent/${game_id}/`)
-    const data = await res.json();
-    return data
-  } catch (error) {
-    console.error(error)
-    return [] 
-  }
-}
-
+import Image from "next/image"
 
 
 export default function Home(){
 
-  const [games,setGames] = useState([])
-  const [gameInfo,setGameInfo] = useState([])
-  useEffect(
-    ()=>
-    {
-      async function fetchData() {
-        const data = await getMatches();  // Await the promise
-        setGames(data);  // Set the resolved data to state
-      }
-  
-      fetchData();
-    },[]
-  )
+  // http://127.0.0.1:8000/api/games/NA1_5115648728
 
-  async function fetchGameInfo(game_id)
+  const [tacticianName,setTacticianName] = useState('')
+  const [tacticianPath,setTacticianPath] = useState('')
+  const [tacticianAvgPlacement,setTacticianAvgPlacement] = useState('')
+
+
+  async function fetchTactician()
   {
-    const data = await getMatchInfo(game_id)
-
-
+    const response = await fetch ('http://127.0.0.1:8000/api/most-played-tactician/')
+    if (!response.ok)
+    {
+      throw new Error(`HTTP Error, Status: ${response.status}`);
+    }
+    const data = await response.json();
+    setTacticianName(data['name'])
+    setTacticianPath(data['path'])
+    setTacticianAvgPlacement(data['placements'])
     
-
-    setGameInfo(data['info']['gameId'])
   }
 
-  const whenGameClicked = (game_id) =>
+  useEffect(()=>
   {
-    fetchGameInfo(game_id)
-  } 
-  
-
-
-
+    fetchTactician()
+  },[])
 
 
   return(
     <main>
-      {/* {games} */}
+      <h1>Jins TFT Stats</h1>
+      {tacticianName}
 
-      {gameInfo}
-
-      {games.length > 0  ? (
-
-
+      {tacticianPath ? 
         <div>
-          {games.map((game,index) =>
-          (
-            <button key={index} onClick={()=>whenGameClicked(game.game_id)}>
-              {game.game_id} ,
-            </button>
-          )
-        )}
+          <Image
+          src="/profile.png"
+          width={500}
+          height={500}
+          alt="Picture of the author"
+        />
+            
+
         </div>
-      ) : 
-      (
-        <div>
-          bruh
-        </div>
-      )
+      
+      :
+
+      <div>
+        No path found
+      </div>
+    
     }
+
+      {}
+
+
+
+      
       
     </main>
   )

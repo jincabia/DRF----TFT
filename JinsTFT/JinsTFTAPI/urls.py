@@ -9,6 +9,8 @@ urlpatterns = [
     path('tactician-placement/<str:item_id>', TacticianPlacementView.as_view()),
     path('most-played-tactician/',MostUsedTactician.as_view()),
     path('tacticians/', TacticianModelView.as_view()),
+    path('game-ids/', GameIdView.as_view()),
+
 
 
 ]
