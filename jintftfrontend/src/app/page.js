@@ -3,6 +3,13 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 
 
+// use divider for the games
+import Divider from '@mui/material/Divider';
+
+// for analytics on my things
+// https://mui.com/material-ui/react-table/
+
+
 export default function Home(){
 
   // http://127.0.0.1:8000/api/games/NA1_5115648728
@@ -34,34 +41,51 @@ export default function Home(){
 
   return(
     <main>
-      <h1>Jins TFT Stats</h1>
-      {tacticianName}
+
+      {/* <h1 className="font-bold text-2xl pb-4">Home</h1> */}
 
       {tacticianPath ? 
-        <div>
+        <div className="w-max p-4 rounded-md bg-slate-900">
+
+          <h1 className=" w-max mx-auto pb-2">Most played Tactician</h1>
+          
+
+        {/* TODO 
+        */}
           <Image
-          src="/profile.png"
-          width={500}
-          height={500}
-          alt="Picture of the author"
+          src= {`/img/tft-tactician/${tacticianPath}`}
+          width={200}
+          height={200}
+          alt="Picture of Tactician"
+          className="shadow-lg  rounded-md"
         />
+
+
+          {/* This is a lsit of all the placements 1-8 */}
+
+          {tacticianName}
+
+          {tacticianAvgPlacement.map((placement,index) => (
+            <div key={index}>
+              <p>{placement}</p>
+            </div>
+          ))}
+
+
+          <p>
             
 
-        </div>
-      
-      :
 
+          </p>
+
+        </div>
+      :
       <div>
         No path found
       </div>
     
     }
-
       {}
-
-
-
-      
       
     </main>
   )

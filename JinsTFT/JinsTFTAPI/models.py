@@ -9,8 +9,6 @@ class Game(models.Model):
     def __str__(self):
         return self.game_id
 
-# TODO 
-# Save game info so incase i dont have apikey itll stil work
 
 # Ill store the tactician itemID i used and put all my placing inside 
 # a list to showcase my winrate with them
@@ -26,7 +24,7 @@ class Tactician(models.Model):
 
     # # tact a
     # # [8,1,4,6]
-
+    
     # games = models.ForeignObject
 
     def __str__(self):

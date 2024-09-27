@@ -147,21 +147,23 @@ class MostUsedTactician(APIView):
             tactician_games = getTacticianGames(itemID)
             serializer = TacticianPlacementSerializer(tactician_games, many=True)
 
-            placement_average = 0.0
+            # placement_average = 0.0
+            placements = []
 
             for game in serializer.data:
+                placements.append(game['placement'])
                 # print(game['placement'])
-                placement_average += float( game['placement'])
+                # placement_average += float( game['placement'])
             
-            placement_average /= len(game)
-            
-
-
-            
-            
+            # placement_average /= len(game)
             
 
-            return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianItemID,'name':name, 'path':path,'placements':placement_average})
+
+            
+            
+            
+
+            return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianItemID,'name':name, 'path':path,'placements':placements})
         
 
         return Response('Tactician Not found')
