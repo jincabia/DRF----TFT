@@ -56,7 +56,7 @@ def fetch_match_info(match_id):
     """
 
     match_info_api_url = f'https://americas.api.riotgames.com/tft/match/v1/matches/{match_id}?api_key={key}'
-    print(match_info_api_url)
+    # print(match_info_api_url)
     try:
         response = requests.get(match_info_api_url)
         response.raise_for_status()
@@ -114,7 +114,7 @@ def populate_tactician(match_info):
     match_id = match_info['metadata']['match_id']
     jins_game_info = match_info['info']['participants'][jins_index]
     jins_tactician = jins_game_info['companion']['item_ID']
-    print(jins_tactician)
+    # print(jins_tactician)
     jins_placement = jins_game_info['placement']
 
     # new_game = Game(game_id=game)
@@ -232,22 +232,7 @@ def getTacticianPath(match):
         # This is the item_ID used in game
         item_ID = jins_info['companion']['item_ID']
 
-        # Change the path for the json file here
-        # JinsTFT\JinsTFTAPI
-        # with open('JinsTFTAPI\companions.json', 'r', encoding="utf8") as file:
-        #     companions_json = json.load(file)
         
-        # len_companions_json = len(companions_json)
-
-        # index_tactician_used = bsTactician(companions_json,0,len_companions_json,item_ID)
-
-        # tactician_used = companions_json[index_tactician_used]['name']
-
-        # img_path = re.split('Companions/', companions_json[index_tactician_used]['loadoutsIcon'])[-1]
-
-
-        # return [tactician_used,img_path]
-
         return searchInsideJSON(item_ID)
 
 def searchInsideJSON(target_tact_id):
@@ -277,7 +262,7 @@ def getTacticianGames(itemID):
     """
 
     tactician = Tactician.objects.get(itemID=itemID)
-    print(tactician)
+    # print(tactician)
 
     if tactician:
             tacticianplacements = TacticianPlacements.objects.filter(tactician=tactician)

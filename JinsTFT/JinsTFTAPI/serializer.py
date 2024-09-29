@@ -20,3 +20,14 @@ class TacticianPlacementSerializer(serializers.ModelSerializer):
     class Meta:
         model = TacticianPlacements
         fields = '__all__'
+
+class StaticUnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaticUnitDetails
+        fields = '__all__'
+
+
+class DynamicUnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DynamicUnitDetails
+        fields = '__all__'

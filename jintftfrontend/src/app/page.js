@@ -16,7 +16,11 @@ export default function Home(){
 
   const [tacticianName,setTacticianName] = useState('')
   const [tacticianPath,setTacticianPath] = useState('')
-  const [tacticianAvgPlacement,setTacticianAvgPlacement] = useState('')
+  // the tacticianPlacement is the list of all placements
+  const [tacticianPlacement,setTacticianPlacement] = useState([])
+
+  // the avg placement calculated from the tactician placement var
+  const [avgPlacement,setAvgPlacement] = useState(0)
 
 
   async function fetchTactician()
@@ -29,13 +33,32 @@ export default function Home(){
     const data = await response.json();
     setTacticianName(data['name'])
     setTacticianPath(data['path'])
-    setTacticianAvgPlacement(data['placements'])
+    setTacticianPlacement(data['placements'])
+
+
     
+
+    
+  }
+
+  const calcAvgPlacement = (tacticianPlacement) =>
+  {
+    let avg = 0
+    for (let i = 0; i < tacticianPlacement.length-1; i++) {
+      // console.log(tacticianPlacement)
+      avg += tacticianPlacement[i]
+    }
+    avg /= tacticianPlacement.length
+
+    return(avg)
   }
 
   useEffect(()=>
   {
     fetchTactician()
+
+      
+
   },[])
 
 
@@ -65,11 +88,18 @@ export default function Home(){
 
           {tacticianName}
 
-          {tacticianAvgPlacement.map((placement,index) => (
+          {/* {avgPlacement} */}
+
+          <p>
+            Avg Placement: {calcAvgPlacement(tacticianPlacement)}
+          </p>
+
+
+          {/* {tacticianPlacement.map((placement,index) => (
             <div key={index}>
               <p>{placement}</p>
             </div>
-          ))}
+          ))} */}
 
 
           <p>

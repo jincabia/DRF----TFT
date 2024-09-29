@@ -6,3 +6,5 @@ from .models import *
 admin.site.register(Game)
 admin.site.register(Tactician)
 admin.site.register(TacticianPlacements)
+admin.site.register(StaticUnitDetails)
+admin.site.register(DynamicUnitDetails)

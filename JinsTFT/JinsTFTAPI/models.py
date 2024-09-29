@@ -24,7 +24,7 @@ class Tactician(models.Model):
 
     # # tact a
     # # [8,1,4,6]
-    
+
     # games = models.ForeignObject
 
     def __str__(self):
@@ -41,4 +41,49 @@ class TacticianPlacements(models.Model):
     # NA-0000
     # Tactician A
     # Placement : 0
+
+
+
+# Characteristics that will not be changed, ie Cost of a Unit & character_id
+class StaticUnitDetails(models.Model):
+    # Name of the unit
+    character_id = models.CharField(max_length=100)
+
+    # API-Rarity = In Game Costs
+    rarity_choices =(
+        # One Cost
+        (0,1),
+        # Two Cost
+        (1,2),
+        # Three Cost
+        (2,3),
+        # Four Cost
+        (4,4),
+        # 5 Cost
+        (6,5),
+        # A unit that cannot be bought, ie Frost Wolf & Yummi
+        (9,0),
+    )
+
+    rarity = models.IntegerField( choices=rarity_choices)
+
+    
+
+# WARNING
+# Be careful for duplicates since I can place more than 1 of the same Unit 
+# Details that change from game to game, ie Tier of a unit, and its items
+class DynamicUnitDetails(models.Model):
+
+    # List of items
+    itemNames = models.JSONField(default=list)
+   
+    # the star of a unit 1 star (bronze) , 2 star (silver), 3 star (gold)
+    tier = models.IntegerField(default=0)
+
+
+    # the game it belongs to
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
+    # the other character details
+    unit = models.ForeignKey(StaticUnitDetails,on_delete=models.CASCADE)
 

@@ -7,6 +7,7 @@ from .models import *
 from .serializer import *
 import json
 import re
+from .unitServices import *
 
 # Create your views here.
 
@@ -80,6 +81,8 @@ class GameInfoView(APIView):
         
         tactician_info = getTacticianPath(match.game_info)
 
+        unit_info = populate_units(match.game_info)
+
 
         #  if tactician:
         #     tacticianplacements = TacticianPlacements.objects.filter(tactician=tactician)
@@ -89,7 +92,7 @@ class GameInfoView(APIView):
 
 
         
-        return Response(tactician_info)
+        return Response(tactician_info, unit_info)
 
 class TacticianModelView(APIView):
 
@@ -147,21 +150,13 @@ class MostUsedTactician(APIView):
             tactician_games = getTacticianGames(itemID)
             serializer = TacticianPlacementSerializer(tactician_games, many=True)
 
-            # placement_average = 0.0
+
+            # place the placements inside a list to calc average and slam it into a chart
             placements = []
 
             for game in serializer.data:
                 placements.append(game['placement'])
-                # print(game['placement'])
-                # placement_average += float( game['placement'])
-            
-            # placement_average /= len(game)
-            
-
-
-            
-            
-            
+                
 
             return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianItemID,'name':name, 'path':path,'placements':placements})
         
