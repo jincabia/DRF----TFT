@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
         className="font-sans">
 
 
-        <div className="flex">
+        <div className="flex h-screen">
           <VerticalNavBar/>
         
             <div className= "flex-1 pl-4 pt-4 bg-slate-800  " >

@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from django.db.models import Count
+from django.db.models import Count, Avg
 from rest_framework.views import APIView
+from django.db.models.functions import Round
 from rest_framework.response import Response
 from .services import *
 from .models import *
@@ -133,32 +134,26 @@ class MostUsedTactician(APIView):
     """
 
     def get(self,request):
-        tacticianplacements = TacticianPlacements.objects.values('tactician').annotate(game_count = Count('game'))
+        # popular_dynamic_units = DynamicUnitDetails.objects.select_related('unit').values('unit__character_id').annotate(game_count=Count('unit')).order_by('-game_count').annotate(avg_placement=Round(Avg('placement'),2))
+
+        most_used = TacticianPlacements.objects.select_related('tactician') \
+        .values('tactician__id', 'tactician__itemID','tactician__name','tactician__path') \
+        .annotate(game_count=Count('game')) \
+        .annotate(avg_placement=Round(Avg('placement'),1)) \
+        .order_by('-game_count') 
+        tacticianplacements = TacticianPlacements.objects.values('tactician').annotate(game_count = Count('game')).annotate(avg_placement = Avg('placement'))
 
 
         if tacticianplacements:
 
-            tacticianItemID = FindTacticianUsingID(tacticianplacements.latest('game_count')['tactician'])
-
-            itemID = int(tacticianItemID['itemID'])
-
-            # finds the name of the tactician and the path of it
-            results = searchInsideJSON(itemID)
-            name,path = results['name'], results['path']
-
-            # find the games and put the placements into a list
-            tactician_games = getTacticianGames(itemID)
-            serializer = TacticianPlacementSerializer(tactician_games, many=True)
+           
 
 
             # place the placements inside a list to calc average and slam it into a chart
-            placements = []
-
-            for game in serializer.data:
-                placements.append(game['placement'])
+            
                 
 
-            return Response({'game_count':tacticianplacements.latest('game_count')['game_count'],'tactician':tacticianItemID,'name':name, 'path':path,'placements':placements})
+            return Response(most_used)
         
 
         return Response('Tactician Not found')
@@ -174,3 +169,82 @@ class GameIdView(APIView):
         serializer = GameIDSerializer(game_ids, many=True)
 
         return Response(serializer.data)
+    
+
+class StaticUnitView(APIView):
+
+    """
+    Get all the Static Units, (name: Seraphine cost = 1 )
+    """
+
+    def get(self,request):
+        static_units = StaticUnitDetails.objects.all()
+        serializers= StaticUnitSerializer(static_units,many=True)
+        return Response(serializers.data)
+    
+
+class DynamicUnitView(APIView):
+
+    """
+    Get all the Dynamic Units, (items, tier and placements)
+    
+    """
+
+    def get(self,request):
+        dynamic_units = DynamicUnitDetails.objects.all()
+        dynamic_serializers= DynamicUnitSerializer(dynamic_units,many=True)
+
+        unit_list = []
+
+        
+        for units in dynamic_serializers.data:
+            # Find the static unit using ID
+            static_unit = StaticUnitDetails.objects.get(id=units['unit'])
+            static_serializer = StaticUnitSerializer(static_unit)
+            unit_list.append((units ,static_serializer.data))
+
+        return Response(unit_list)
+    
+class PopulateUnitView(APIView):
+    """
+    Populate the units using all the games inside the DB
+    """
+
+    def get(self,request):
+        games = Game.objects.all()
+        for game in games:
+            unit_info = populate_units(game.game_info)
+        
+        return Response('Success?')
+    
+
+
+class MostUsedUnitView(APIView):
+    """
+    Find the most played Unit 
+    Using aggregate functions to find the most played games and avg placement 
+    """
+    def get (self,request):
+        popular_dynamic_units = DynamicUnitDetails.objects.select_related('unit') \
+        .values('unit__character_id') \
+        .annotate(game_count=Count('unit')) \
+        .order_by('-game_count') \
+        .annotate(avg_placement=Round(Avg('placement'),2))
+        return Response(popular_dynamic_units)
+
+
+class PopulateTacticians(APIView):
+
+    """
+    Used to populate the tacticians itemID ,name,path
+    """
+
+    def get(self,request):
+        games = Game.objects.all()
+        for game in games:
+            print(game)
+            populating = populate_tactician(game.game_info)
+
+
+
+        return Response('yay')

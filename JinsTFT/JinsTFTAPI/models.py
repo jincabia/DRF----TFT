@@ -17,6 +17,8 @@ class Game(models.Model):
 # add name to db instead of needing to look it up constantly
 class Tactician(models.Model):
     itemID = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    path = models.CharField(max_length=500)
 
 
 
@@ -50,22 +52,11 @@ class StaticUnitDetails(models.Model):
     character_id = models.CharField(max_length=100)
 
     # API-Rarity = In Game Costs
-    rarity_choices =(
-        # One Cost
-        (0,1),
-        # Two Cost
-        (1,2),
-        # Three Cost
-        (2,3),
-        # Four Cost
-        (4,4),
-        # 5 Cost
-        (6,5),
-        # A unit that cannot be bought, ie Frost Wolf & Yummi
-        (9,0),
-    )
+    
+    # TRAITS???
 
-    rarity = models.IntegerField( choices=rarity_choices)
+    rarity = models.IntegerField( )
+    # rarity = models.IntegerChoices
 
     
 
@@ -86,4 +77,7 @@ class DynamicUnitDetails(models.Model):
 
     # the other character details
     unit = models.ForeignKey(StaticUnitDetails,on_delete=models.CASCADE)
+
+    placement = models.IntegerField()
+
 

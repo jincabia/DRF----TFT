@@ -57,9 +57,29 @@ def populate_units(match_info):
         character_id = re.sub('([A-Z])', r' \1', re.split('TFT12_',character_id)[-1])
 
 
-        # The cost of a unit
-        rarity = unit['rarity']
+        rarity_dict = {
+            # 1 cost
+            0:1,
 
+            # 2 Cost
+            1:2,
+
+            # 3 Cost
+            2:3,
+
+            # 4 Cost
+            4:4,
+
+            # 5 Cost
+            6:5,
+
+            # Unobtainable unit (Yummi, Frost Wolf Augment)
+            9:0
+        }
+
+
+        # The cost of a unit
+        rarity = rarity_dict[unit['rarity']]
         # print(character_id, rarity)
         
         new_unit,unitIsNew = StaticUnitDetails.objects.get_or_create(character_id=character_id,rarity=rarity)
@@ -93,8 +113,11 @@ def populate_units(match_info):
 
         game,gameIsNew = Game.objects.get_or_create(game_id=match_id)
 
+        placement = int(fetch_match_placement(match_id))
+
+        # print(placement)
         
-        new_dynamic_unit, dynamic_unitIsNew = DynamicUnitDetails.objects.get_or_create(itemNames=items_list,tier=tier,unit=new_unit,game=game)
+        new_dynamic_unit, dynamic_unitIsNew = DynamicUnitDetails.objects.get_or_create(itemNames=items_list,tier=tier,unit=new_unit,game=game,placement=placement)
 
         
         

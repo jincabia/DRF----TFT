@@ -95,6 +95,41 @@ def find_index(metadata_participant):
     # not found
     return -1
 
+
+def fetch_match_placement(match_id):
+
+    """
+    Find the placement of a match
+    """
+
+
+    # Get match from db
+    match = Game.objects.get(game_id = match_id)
+
+
+
+    if not match:
+        return('Match not found')
+    
+    match_info = match.game_info
+    # print(match_info)\
+
+    
+    metadata_participant = match_info['metadata']['participants']
+    # print(metadata_participant)
+
+
+    jins_index = find_index(metadata_participant)
+    # print('index ',jins_index)
+
+    jins_game_info = match_info['info']['participants'][jins_index]
+    # print('game info', jins_game_info)
+
+    return  jins_game_info['placement']
+
+
+
+
 def populate_tactician(match_info):
 
     """
@@ -117,11 +152,20 @@ def populate_tactician(match_info):
     # print(jins_tactician)
     jins_placement = jins_game_info['placement']
 
+    results = searchInsideJSON(int(jins_tactician))
+    name,path = results['name'], results['path']
+
+
     # new_game = Game(game_id=game)
     #             new_game.save()
 
     # Check or create tactician
-    tactician,tacticianIsNew = Tactician.objects.get_or_create(itemID=jins_tactician)
+    tactician,tacticianIsNew = Tactician.objects.get_or_create(itemID=jins_tactician,name=name,path=path)
+    # if its not new
+    if not tacticianIsNew:
+        tactician.name = name
+        tactician.path = path
+        tactician.save()  # Don't forget to save the changes
 
     game,gameIsNew = Game.objects.get_or_create(game_id=match_id)
 

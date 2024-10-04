@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect } from "react"
 import Image from "next/image"
-
+import MostUsedTactician from "./components/mostplayedtactician";
+import MostUsedUnit from "./components/mostplayedunit";
 
 // use divider for the games
 import Divider from '@mui/material/Divider';
@@ -14,13 +15,31 @@ export default function Home(){
 
   // http://127.0.0.1:8000/api/games/NA1_5115648728
 
+
+
+  // Things useState variables are for the Most played Tactician,Unit and Trait
+  // ---------------TACTICIAN--------------
+  const [tacticianFetch,setTacticianFetch] = useState(false)
+
   const [tacticianName,setTacticianName] = useState('')
   const [tacticianPath,setTacticianPath] = useState('')
-  // the tacticianPlacement is the list of all placements
   const [tacticianPlacement,setTacticianPlacement] = useState([])
+  const [tacticianGameCount,setTacticianGameCount] = useState(0)
 
-  // the avg placement calculated from the tactician placement var
-  const [avgPlacement,setAvgPlacement] = useState(0)
+// ------------------UNIT---------------------
+  const [unitFetch,setUnitFetch] = useState(false)
+
+
+  const [mostPlayedUnits,setMostPlayedUnits] = useState([])
+  const [unitName,setUnitName] = useState('')
+  const [unitPath,setUnitPath] = useState('')
+  const [unitPlacement,setUnitPlacement] = useState('')
+  const [allUnits,setAllUnits] = useState([])
+
+  // ---------------TRAIT---------------------
+
+
+
 
 
   async function fetchTactician()
@@ -31,31 +50,49 @@ export default function Home(){
       throw new Error(`HTTP Error, Status: ${response.status}`);
     }
     const data = await response.json();
-    setTacticianName(data['name'])
-    setTacticianPath(data['path'])
-    setTacticianPlacement(data['placements'])
 
-
+    // checks if fetch was successful 
+    if (data) setTacticianFetch(true)
     
 
+    // if successful populate variables
+    setTacticianName(data[5]['tactician__name'])
+    setTacticianPath(data[5]['tactician__path'])
+    setTacticianPlacement(data[5]['avg_placement'])  
+    setTacticianGameCount(data[5]['game_count'])
     
   }
+      
 
-  const calcAvgPlacement = (tacticianPlacement) =>
+  async function fetchUnits()
   {
-    let avg = 0
-    for (let i = 0; i < tacticianPlacement.length-1; i++) {
-      // console.log(tacticianPlacement)
-      avg += tacticianPlacement[i]
-    }
-    avg /= tacticianPlacement.length
+    const response = await fetch ('http://127.0.0.1:8000/api/popular-units/')
+    if (!response.ok)
+      {
+        throw new Error(`HTTP Error, Status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data[0])
 
-    return(avg)
+      if (data) setUnitFetch(true)
+
+      setUnitName(data[0]['unit__character_id'])
+      setUnitPlacement(data[0]['avg_placement'])
+
+
+
+
+      // avg_placement: 4.38
+      // game_count: 26
+      // unit__character_id: " Tahm Kench"
+
   }
 
+  
   useEffect(()=>
   {
     fetchTactician()
+    fetchUnits()
 
       
 
@@ -67,55 +104,28 @@ export default function Home(){
 
       {/* <h1 className="font-bold text-2xl pb-4">Home</h1> */}
 
-      {tacticianPath ? 
-        <div className="w-max p-4 rounded-md bg-slate-900">
-
-          <h1 className=" w-max mx-auto pb-2">Most played Tactician</h1>
-          
-
-        {/* TODO 
-        */}
-          <Image
-          src= {`/img/tft-tactician/${tacticianPath}`}
-          width={200}
-          height={200}
-          alt="Picture of Tactician"
-          className="shadow-lg  rounded-md"
-        />
-
-
-          {/* This is a lsit of all the placements 1-8 */}
-
-          {tacticianName}
-
-          {/* {avgPlacement} */}
-
-          <p>
-            Avg Placement: {calcAvgPlacement(tacticianPlacement)}
-          </p>
-
-
-          {/* {tacticianPlacement.map((placement,index) => (
-            <div key={index}>
-              <p>{placement}</p>
-            </div>
-          ))} */}
-
-
-          <p>
-            
-
-
-          </p>
-
+      {tacticianFetch ? 
+        <div>
+          <MostUsedTactician name={tacticianName} path={tacticianPath} placement={tacticianPlacement} gameCount={tacticianGameCount}/>
         </div>
       :
       <div>
-        No path found
+      LOADING / PROBLEM FETCHING
       </div>
     
     }
       {}
+
+    { unitFetch ?
+    <>
+    {/* {mostPlayedUnits['unit__character_id'].replace(' ','')} */}
+    </>
+    :
+    <>
+      LOADING / PROBLEM FETCHING
+    </>
+    }
+
       
     </main>
   )
