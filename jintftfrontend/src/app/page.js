@@ -34,6 +34,7 @@ export default function Home(){
   const [unitName,setUnitName] = useState('')
   const [unitPath,setUnitPath] = useState('')
   const [unitPlacement,setUnitPlacement] = useState('')
+  const [unitGameCount,setUnitGameCount] = useState('')
   const [allUnits,setAllUnits] = useState([])
 
   // ---------------TRAIT---------------------
@@ -56,10 +57,10 @@ export default function Home(){
     
 
     // if successful populate variables
-    setTacticianName(data[5]['tactician__name'])
-    setTacticianPath(data[5]['tactician__path'])
-    setTacticianPlacement(data[5]['avg_placement'])  
-    setTacticianGameCount(data[5]['game_count'])
+    setTacticianName(data[0]['tactician__name'])
+    setTacticianPath(data[0]['tactician__path'])
+    setTacticianPlacement(data[0]['avg_placement'])  
+    setTacticianGameCount(data[0]['game_count'])
     
   }
       
@@ -72,14 +73,25 @@ export default function Home(){
         throw new Error(`HTTP Error, Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log(data[0])
+      // console.log(data[0])
 
       if (data) setUnitFetch(true)
 
-      setUnitName(data[0]['unit__character_id'])
+      const name = data[0]['unit__character_id']
+
+      const avg_placement = data[0]['avg_placement']
+
+      const game_count = data[0]['game_count']
+
+      setUnitName(name)
       setUnitPlacement(data[0]['avg_placement'])
 
+      // Replace the spaces inside a string to allow it for the img
+      const path = name.replace(/\s/g, '')
+      setUnitPath(path)
 
+      setUnitPlacement(avg_placement)
+      setUnitGameCount(game_count)
 
 
       // avg_placement: 4.38
@@ -104,27 +116,34 @@ export default function Home(){
 
       {/* <h1 className="font-bold text-2xl pb-4">Home</h1> */}
 
-      {tacticianFetch ? 
-        <div>
-          <MostUsedTactician name={tacticianName} path={tacticianPath} placement={tacticianPlacement} gameCount={tacticianGameCount}/>
-        </div>
-      :
-      <div>
-      LOADING / PROBLEM FETCHING
-      </div>
-    
-    }
-      {}
 
-    { unitFetch ?
-    <>
-    {/* {mostPlayedUnits['unit__character_id'].replace(' ','')} */}
-    </>
-    :
-    <>
-      LOADING / PROBLEM FETCHING
-    </>
-    }
+      <div className="flex justify-around">
+
+        {tacticianFetch ? 
+          <div>
+            <MostUsedTactician name={tacticianName} path={tacticianPath} placement={tacticianPlacement} gameCount={tacticianGameCount}/>
+          </div>
+        :
+        <div>
+        LOADING / PROBLEM FETCHING
+        </div>
+      
+      }
+        {}
+
+      { unitFetch ?
+      <div>
+
+        <MostUsedUnit name={unitName} path={unitPath} placement={unitPlacement} gameCount={unitGameCount}/>
+      </div>
+      :
+      <>
+        LOADING / PROBLEM FETCHING
+      </>
+      }
+      
+      </div>
+
 
       
     </main>
