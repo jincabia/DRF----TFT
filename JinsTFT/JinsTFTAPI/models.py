@@ -5,16 +5,22 @@ from django.db import models
 class Game(models.Model):
     game_id = models.CharField(max_length=100,unique=True)
     game_info = models.JSONField(default=dict)
-
     def __str__(self):
         return self.game_id
+    
+    # def save(self,*args,**kwargs):
+    #     pass
 
+class GamePlacements(models.Model):
+    """
+    Storing game placements so I dont need to keep reading it from Game objects
+    """
+    placement = models.IntegerField()
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
 # Ill store the tactician itemID i used and put all my placing inside 
 # a list to showcase my winrate with them
 
-# TODO
-# add name to db instead of needing to look it up constantly
 class Tactician(models.Model):
     itemID = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
@@ -81,3 +87,47 @@ class DynamicUnitDetails(models.Model):
     placement = models.IntegerField()
 
 
+class StaticTraitDetails(models.Model):
+    """
+    things that do not change for traits
+    """
+
+    trait_name = models.CharField(max_length=100)
+    tier_total = models.IntegerField(default=0)
+
+
+    pass
+
+class DynamicTraitDetails(models.Model):
+
+    """
+    things that do change from game to game
+    """
+
+    # style_dict = {
+    #     0 : 'Not Active',
+    #     1 : 'Bronze',
+    #     2 : 'Silver',
+    #     3 : 'Gold',
+    #     4 : 'Prismatic',
+    #     5 : 'Unique'
+    #                 }
+
+    # Idk
+    tier_current = models.IntegerField()
+
+    # How much units of a certain trait are on the board
+    num_units = models.IntegerField()
+    
+    # What color the trait is currently (Bronze, Silver, Gold, Prismatic)
+    style = models.IntegerField()
+
+    static_trait_details = models.ForeignKey(StaticTraitDetails, on_delete=models.CASCADE)
+
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
+    placement = models.IntegerField()
+
+
+
+    pass

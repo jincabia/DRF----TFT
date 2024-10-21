@@ -5,14 +5,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Accordion, AccordionSummary, AccordionDetails, Typography,  Box } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { purple, red,blueGrey, blue, grey } from '@mui/material/colors';
 
 // const accent = purple.A200; // #e040fb (alternative method)
 
-// TODO 
-// Instead of placement we do traits?
-
-export default function MostUsedTactician({ name, path, placement, gameCount }) {
+export default function MostUsedTrait({ name, path, placement, gameCount }) {
 
   return(
     <main className="bg-slate-900 p-4 rounded-md w-max ">
@@ -20,7 +16,7 @@ export default function MostUsedTactician({ name, path, placement, gameCount }) 
     <header className="flex items-center justify-center space-x-2 pb-1 border-b-2 border-slate-700 mb-3">
       <AccessTimeIcon className="align-text-bottom" fontSize="xs" />
       <h1 className="uppercase font-medium text-sm text-slate-300 ">
-        Most Played Unit
+        Most Played Trait
       </h1>
     </header>
 
@@ -29,13 +25,13 @@ export default function MostUsedTactician({ name, path, placement, gameCount }) 
 
         
 
-     {/* Unit Image */}
+     {/* Trait Image */}
 <div className="row-span-1 flex justify-center pb-2">
   <Image
-    src={`/img/tft-champion/TFT12_${path}.TFT_Set12.png`}
+    src={`/img/tft-trait/Trait_Icon_12_${path}.TFT_Set12.png`}
     width={200}
     height={200}
-    alt="Picture of Unit"
+    alt="Picture of Trait"
     className="shadow-lg rounded-md object-cover w-[200px] h-[150px]"
   />
 </div>

@@ -9,6 +9,7 @@ from .serializer import *
 import json
 import re
 from .unitServices import *
+from rest_framework import viewsets
 
 # Create your views here.
 
@@ -25,11 +26,11 @@ class RecentMatchView(APIView):
             return Response( -1)
 
         for game in data:
+            # print(game)
             populate_tact = fetch_match_info(game)
             populate_tactician(populate_tact)
-
         return Response(data)
-    
+        
 class CheckMatchView(APIView):
 
     """
@@ -141,6 +142,8 @@ class MostUsedTactician(APIView):
         .annotate(game_count=Count('game')) \
         .annotate(avg_placement=Round(Avg('placement'),1)) \
         .order_by('-game_count') 
+
+
         tacticianplacements = TacticianPlacements.objects.values('tactician').annotate(game_count = Count('game')).annotate(avg_placement = Avg('placement'))
 
 
@@ -248,3 +251,87 @@ class PopulateTacticians(APIView):
 
 
         return Response('yay')
+    
+
+class PopulateTraits(APIView):
+    """
+    Used to populate the traits
+    """
+
+    def get(self,request):
+        games = Game.objects.all()
+        for game in games:
+            print(game)
+            populating = populate_traits(game.game_info)
+
+        return Response('yo')
+
+    
+
+    pass
+
+class StaticTraitViewSet(viewsets.ViewSet):
+    def list(self,request):
+        queryset = StaticTraitDetails.objects.all()
+        serializers = StaticTraitSerializer(queryset,many=True)
+        return Response(serializers.data)
+    
+class DynamicTraitViewSet(viewsets.ViewSet):
+
+    """
+    List of all the Dynamic Traits 
+    """
+
+    def list(self,request):
+        queryset = DynamicTraitDetails.objects.all()
+        serializers = DynamicTraitSerializer(queryset,many=True)
+        return Response(serializers.data)
+
+class MostPlayedDynamicTraitViewSet(viewsets.ViewSet):
+
+    """
+    Most Played Traits
+    """
+
+    def list(self,request):
+        queryset = DynamicTraitDetails.objects.select_related('static_trait_details') \
+            .values('static_trait_details__trait_name').annotate(game_count=Count('game')).order_by('-game_count').annotate(avg_placement=Round(Avg('placement'),2))
+        return Response(queryset)
+
+
+class PopulateGamePlacements(APIView):
+    def get(self,request):
+        games = Game.objects.all()
+
+        for game in games:
+            info = game.game_info
+            populate = populate_placement(info)
+        
+        return Response('lol')
+        
+        pass
+
+
+class GamePlacementView(APIView):
+    def get(self,request):
+        placements = GamePlacements.objects.all().order_by('-id')
+        serializers = GamePlacementSerializer(placements,many=True)
+        return Response(serializers.data)
+# popular_dynamic_units = DynamicUnitDetails.objects.select_related('unit') \
+#         .values('unit__character_id') \
+#         .annotate(game_count=Count('unit')) \
+#         .order_by('-game_count') \
+#         .annotate(avg_placement=Round(Avg('placement'),2))
+#         return Response(popular_dynamic_units)
+
+class FindGame(APIView):
+    def get(self,request,game):
+        # games = GamePlacements.objects.all().filter(game=game)
+        # serializers = GamePlacementSerializer(games, many=True)
+
+        asd = GamePlacements.objects.select_related('game').filter(game=game)
+        serializers = GamePlacementSerializer(asd, many=True)
+        # return Response(serializers)
+
+
+        return Response(serializers.data)

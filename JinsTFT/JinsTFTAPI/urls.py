@@ -14,10 +14,17 @@ urlpatterns = [
     path('dynamic-units/', DynamicUnitView.as_view()),
     # path('populate-units/', PopulateUnitView.as_view()),
     path('populate-tact/', PopulateTacticians.as_view()),
+    path('populate-trait/', PopulateTraits.as_view()),
+    path('populate-placement/', PopulateGamePlacements.as_view()),
 
     path('popular-units/', MostUsedUnitView.as_view()),
-
+    path('view-static-traits/', StaticTraitViewSet.as_view({'get': 'list'})),
+    path('view-dynamic-traits/', DynamicTraitViewSet.as_view({'get': 'list'})),
+    path('popular-traits/', MostPlayedDynamicTraitViewSet.as_view({'get': 'list'})),
+    path('view-placements/', GamePlacementView.as_view()),
     
+    path('find-game/<str:game>', FindGame.as_view()),
+
 
 ]
 

@@ -149,7 +149,6 @@ def populate_tactician(match_info):
     match_id = match_info['metadata']['match_id']
     jins_game_info = match_info['info']['participants'][jins_index]
     jins_tactician = jins_game_info['companion']['item_ID']
-    # print(jins_tactician)
     jins_placement = jins_game_info['placement']
 
     results = searchInsideJSON(int(jins_tactician))
@@ -167,9 +166,30 @@ def populate_tactician(match_info):
         tactician.path = path
         tactician.save()  # Don't forget to save the changes
 
-    game,gameIsNew = Game.objects.get_or_create(game_id=match_id)
+
+    # The game is not being created
+
+    game,gameIsNew = Game.objects.get_or_create(game_id=match_id, 
+                defaults={'game_info': match_info}  # Store match_info as JSON
+            )
+        
+    if not gameIsNew:
+            game.game_info = match_info
+            game.save()
+
+    # # Explicitly save game if newly created
+    if gameIsNew:
+        game.save()
+
+    # Explicitly save tactician if newly created (though get_or_create already does it)
+    if tacticianIsNew:
+        tactician.save()
+
 
     tacticianplacements, tacticianPlacementIsNew = TacticianPlacements.objects.get_or_create(game=game,tactician=tactician,defaults={'placement':jins_placement})
+
+    if tacticianPlacementIsNew:
+        tacticianplacements.save()
     
 
 
@@ -196,15 +216,22 @@ def PopulateGames(matches):
     for match in matches:
         # match_info = (1.0, fetch_match_info(match))
         match_info = fetch_match_info(match)
-        game,gameIsNew = Game.objects.get_or_create(game_id=match, 
-                defaults={'game_info': match_info}  # Store match_info as JSON
-            )
-        
+        # print(match)
+
+         # Check or create the Game instance
+        game, gameIsNew = Game.objects.get_or_create(
+            game_id=match,
+            defaults={'game_info': match_info}  # Store match_info as JSON
+        )
+
+        # If the game is not new, update its game_info field
         if not gameIsNew:
-            game.game_info = match_info
-            game.save()
-        
-        time.sleep(1)
+            game.game_info = match_info  # Update with new match info
+
+        # Save the game instance (both new and existing ones)
+        game.save()
+
+        time.sleep(1)  # Sleep to avoid overloading API
 
 
     return
@@ -316,3 +343,110 @@ def getTacticianGames(itemID):
             
 
 
+def populate_traits(match_info):
+    """
+    Read games and populate traits
+    """
+
+    participants = match_info['metadata']['participants']
+    # find my index from participants or match_info['metadata']['participants'] n look for my puuid
+    jins_index = find_index(participants)
+
+    if jins_index == -1:
+        return "Player not found"
+    
+    match_id = match_info['metadata']['match_id']
+    jins_game_info = match_info['info']['participants'][jins_index]
+    # print(jins_tactician)
+    jins_placement = jins_game_info['placement']
+
+    jins_traits = jins_game_info['traits']
+
+    game,gameIsNew = Game.objects.get_or_create(game_id=match_id)
+
+
+    for trait in jins_traits:
+
+        # STATIC TRAITS
+
+        # trait_name = models.CharField(max_length=100)
+        # tier_total = models.IntegerField(default=0)
+
+        trait_name = re.split('TFT12_',trait['name'])[-1]
+        tier_total = trait['tier_total']
+
+        staticTrait,staticTraitIsNew = StaticTraitDetails.objects.get_or_create(trait_name=trait_name,tier_total=tier_total)
+
+
+
+        #  DYNAMIC TRAITS
+
+    #     # Idk
+    # tier_current = models.IntegerField()
+
+    # # How much units of a certain trait are on the board
+    # num_units = models.IntegerField()
+    
+    # # What color the trait is currently (Bronze, Silver, Gold, Prismatic)
+    # style = models.IntegerField()
+
+    # static_trait_details = models.ForeignKey(StaticTraitDetails, on_delete=models.CASCADE)
+
+    # game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
+    # placement = models.IntegerField()
+
+        tier_current = trait['tier_current']
+
+        num_units = trait['num_units']
+
+        style = trait['style']
+
+
+        dynamicTrait, dynamicTraitIsNew = DynamicTraitDetails.objects.get_or_create(
+            tier_current=tier_current, 
+            num_units=num_units,
+            style=style,
+            game=game,
+            placement=jins_placement,
+            static_trait_details=staticTrait)
+
+
+
+
+
+
+
+
+    # new_game = Game(game_id=game)
+    #             new_game.save()
+
+    # Check or create tactician
+   
+
+
+def populate_placement(match_info):
+
+
+    participants = match_info['metadata']['participants']
+    # find my index from participants or match_info['metadata']['participants'] n look for my puuid
+    jins_index = find_index(participants)
+
+    if jins_index == -1:
+        return "Player not found"
+    
+    match_id = match_info['metadata']['match_id']
+    jins_game_info = match_info['info']['participants'][jins_index]
+    # print(jins_tactician)
+    jins_placement = jins_game_info['placement']
+
+    jins_traits = jins_game_info['traits']
+
+    game,gameIsNew = Game.objects.get_or_create(game_id=match_id)
+
+    gamePlacements, gamePlacementIsNew = GamePlacements.objects.get_or_create(game=game,placement = jins_placement)
+
+    # if not gamePlacementIsNew:
+    #     gamePlacementIsNew
+
+    pass
